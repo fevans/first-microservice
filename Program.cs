@@ -23,7 +23,10 @@ builder.Services.AddControllers()
             });
         };
     });
-builder.Services.AddSingleton<InMemoryRepository>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<IItemRepository, InMemoryRepository>();
+
 
 var app = builder.Build();
 

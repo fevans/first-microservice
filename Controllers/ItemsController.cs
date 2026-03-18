@@ -9,19 +9,19 @@ namespace Catalog.Service.Controllers
 {
     [Route("items")]
     [ApiController]
-    public class ItemsController(InMemoryRepository repository) : ControllerBase
+    public class ItemsController(IItemRepository repository) : ControllerBase
     {
         //private readonly InMemoryRepository _repository;
         // GET: api/<ItemsController>
         [HttpGet]
-        public ActionResult<IEnumerable<ItemDto>> GetAll() 
-            => Ok(repository.GetAll().Select(item => item.AsDto()));
+        public async Task<ActionResult<IEnumerable<ItemDto>>>GetAllAsync() 
+            => Ok ((await repository.GetAllAsync()).Select(item => item.AsDto()));
         
         // GET /items/{id}
         [HttpGet("{id:guid}")]
-        public ActionResult<ItemDto> GetById(Guid id)
+        public  async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
         {
-            var item = repository.GetById(id);
+            var item = await repository.GetAsync(id);
             return item is null
                 ? NotFound()
                 : Ok(item.AsDto());
@@ -29,7 +29,7 @@ namespace Catalog.Service.Controllers
         
         // POST /items
         [HttpPost]
-        public ActionResult<ItemDto> Create(CreateItemDto dto)
+        public async Task<ActionResult<ItemDto>> CreateAsync(CreateItemDto dto)
         {
             if (dto.Price <= 0)
                 return BadRequest(new { Error = "Price must be greater than zero." });
@@ -42,20 +42,20 @@ namespace Catalog.Service.Controllers
                 Price = dto.Price,
                 CreatedDate = DateTimeOffset.UtcNow
             };
-            repository.Create(item);
-            return CreatedAtAction(nameof(GetById),
+            await repository.CreateAsync(item);
+            return CreatedAtAction(nameof(GetByIdAsync),
                 new { id = item.Id },
                 item.AsDto());
         }
         
         // PUT /items/{id}
         [HttpPut("{id:guid}")]
-        public IActionResult Update(Guid id, UpdateItemDto dto)
+        public async Task<IActionResult> Update(Guid id, UpdateItemDto dto)
         {
             if (dto.Price <= 0)
                 return BadRequest(new { Error = "Price must be greater than zero." });
             
-            var existing = repository.GetById(id);
+            var existing = await repository.GetAsync(id);
             if (existing is null) return NotFound();
             var updated = new Item
             {
@@ -65,17 +65,17 @@ namespace Catalog.Service.Controllers
                 Price = dto.Price,
                 CreatedDate = existing.CreatedDate
             };
-            repository.Update(updated);
+            await repository.UpdateAsync(updated);
             return NoContent();
         }
         
         // DELETE /items/{id}
         [HttpDelete("{id:guid}")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var existing = repository.GetById(id);
+            var existing = await repository.GetAsync(id);
             if (existing is null) return NotFound();
-            repository.Delete(id);
+            await repository.DeleteAsync(id);
             return NoContent();
         }
     }

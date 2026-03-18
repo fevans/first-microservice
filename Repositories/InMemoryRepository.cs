@@ -1,54 +1,74 @@
+using System.Collections.Concurrent;
 using Catalog.Service.Domain;
 
 namespace Catalog.Service.Repositories;
 
-public class InMemoryRepository
+public class InMemoryRepository : IItemRepository
 {
-        private readonly List<Item> _items = [];
+        //private readonly List<Item> _items = [];
     
         public InMemoryRepository()
         {
-            _items.Add(new Item
+            var item1 = new Item
             {
                 Id = Guid.NewGuid(),
                 Name = "Potion",
                 Description = "Restores a small amount of HP",
                 Price = 9,
                 CreatedDate = DateTimeOffset.UtcNow
-            });
-            _items.Add(new Item
+            };
+            _items[item1.Id] = item1;
+              
+            var id = Guid.NewGuid();
+            _items[id] = (new Item
             {
-                Id = Guid.NewGuid(),
+                Id = id,
                 Name = "Iron Sword",
                 Description = "Deals a moderate amount of damage",
                 Price = 20,
                 CreatedDate = DateTimeOffset.UtcNow
             });
-            _items.Add(new Item
+            
+            id = Guid.NewGuid();
+            _items[id] = new Item
             {
                 Id = Guid.NewGuid(),
                 Name = "Bronze Shield",
                 Description = "Provides a moderate amount of protection",
                 Price = 18,
                 CreatedDate = DateTimeOffset.UtcNow
-            });
+            };
         }
-    
-        public IEnumerable<Item> GetAll() => _items;
-       
-        public Item? GetById(Guid id) => _items.SingleOrDefault(item => item.Id == id);
+        private readonly ConcurrentDictionary<Guid, Item> _items = new();
         
-        public void Create(Item item) => _items.Add(item);
-    
-        public void Update(Item item)
+
+        public Task<IReadOnlyCollection<Item>> GetAllAsync() =>
+            Task.FromResult((IReadOnlyCollection<Item>)_items.Values
+                .OrderBy(x => x.Name)
+                .ToArray());
+
+        public Task<Item?> GetAsync(Guid id)
         {
-            var index = _items.FindIndex(existingItem => existingItem.Id == item.Id);
-            if (index > 0) _items[index] = item;
+            _items.TryGetValue(id, out var item);
+            return Task.FromResult(item);
         }
-    
-        public void Delete(Guid id)
+
+        public Task CreateAsync(Item item)
         {
-            var index = _items.FindIndex(existingItem => existingItem.Id == id);
-            if (index > 0 ) _items.RemoveAt(index);
+            _items[item.Id] = item;
+            return Task.CompletedTask;
         }
+
+        public Task UpdateAsync(Item item)
+        {
+            _items[item.Id] = item;
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(Guid id)
+        {
+            _items.TryRemove(id, out _);
+            return Task.CompletedTask;
+        }
+
 }
