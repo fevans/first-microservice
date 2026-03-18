@@ -1,0 +1,37 @@
+@hostAddress = http://localhost:5276
+
+### Get all items
+GET {{hostAddress}}/items
+
+### Get item by id
+@itemId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+GET {{hostAddress}}/items/{{itemId}}
+
+### Get item by id
+@itemId2 = b076bd27-ce37-4c55-b839-57aa6266b2d1
+GET {{hostAddress}}/items/{{itemId2}}
+
+### Create item
+POST {{hostAddress}}/items
+Content-Type: application/json
+
+{
+  "name": "Sample Item",
+  "description": "A sample item description",
+  "price": 29.99
+}
+
+### Update item
+PUT {{hostAddress}}/items/{{itemId2}}
+Content-Type: application/json
+
+{
+  "name": "Updated Item",
+  "description": "Updated description",
+  "price": 39.99
+}
+
+### Delete item
+DELETE {{hostAddress}}/items/{{itemId}}
+
+###
