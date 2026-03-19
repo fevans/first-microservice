@@ -9,7 +9,7 @@ namespace Catalog.Service.Controllers
 {
     [Route("items")]
     [ApiController]
-    public class ItemsController(IItemRepository repository) : ControllerBase
+    public class ItemsController(IRepository<Item> repository) : ControllerBase
     {
         //private readonly InMemoryRepository _repository;
         // GET: api/<ItemsController>
@@ -18,8 +18,8 @@ namespace Catalog.Service.Controllers
             => Ok ((await repository.GetAllAsync()).Select(item => item.AsDto()));
         
         // GET /items/{id}
-        [HttpGet("{id:guid}")]
-        public  async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
+        [HttpGet("{id:guid}", Name = nameof(GetByIdAsync))]
+        public async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
         {
             var item = await repository.GetAsync(id);
             return item is null
@@ -43,7 +43,8 @@ namespace Catalog.Service.Controllers
                 CreatedDate = DateTimeOffset.UtcNow
             };
             await repository.CreateAsync(item);
-            return CreatedAtAction(nameof(GetByIdAsync),
+
+            return CreatedAtRoute(nameof(GetByIdAsync),
                 new { id = item.Id },
                 item.AsDto());
         }
@@ -75,7 +76,7 @@ namespace Catalog.Service.Controllers
         {
             var existing = await repository.GetAsync(id);
             if (existing is null) return NotFound();
-            await repository.DeleteAsync(id);
+            await repository.RemoveAsync(id);
             return NoContent();
         }
     }

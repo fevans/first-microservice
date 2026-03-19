@@ -1,6 +1,6 @@
 namespace Catalog.Service.Domain;
 
-public class Item
+public class Item : IEntity
 {
     public Guid Id { get; init; }
     public required string Name { get; init; }

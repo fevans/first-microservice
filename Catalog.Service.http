@@ -21,6 +21,16 @@ Content-Type: application/json
   "price": 29.99
 }
 
+### Create another item
+POST {{hostAddress}}/items
+Content-Type: application/json
+
+{
+  "name": "Another Starter Sword",
+  "description": "Another basic weapon for new players.",
+  "price": 25.00
+}
+
 ### Update item
 PUT {{hostAddress}}/items/{{itemId2}}
 Content-Type: application/json
