@@ -4,7 +4,7 @@
 GET {{hostAddress}}/items
 
 ### Get item by id
-@itemId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@itemId = fd1a2898-e2d4-4b1f-bb2b-40b0067a56d2
 GET {{hostAddress}}/items/{{itemId}}
 
 ### Get item by id

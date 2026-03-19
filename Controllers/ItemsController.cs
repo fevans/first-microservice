@@ -14,7 +14,7 @@ namespace Catalog.Service.Controllers
         //private readonly InMemoryRepository _repository;
         // GET: api/<ItemsController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemDto>>>GetAllAsync() 
+        public async Task<ActionResult<IEnumerable<ItemDto>>> GetAllAsync()
             => Ok ((await repository.GetAllAsync()).Select(item => item.AsDto()));
         
         // GET /items/{id}
