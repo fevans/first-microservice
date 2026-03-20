@@ -1,6 +1,9 @@
 using Catalog.Service.Dtos;
-using Catalog.Service.Domain;
-using Catalog.Service.Repositories;
+
+using Catalog.Service.Extensions;
+
+using GamePlatform.Common.Entities;
+using GamePlatform.Common.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -9,17 +12,17 @@ namespace Catalog.Service.Controllers
 {
     [Route("items")]
     [ApiController]
-    public class ItemsController(IRepository<Item> repository) : ControllerBase
+    public class ItemsController(IRepository<CatalogItem> repository) : ControllerBase
     {
         //private readonly InMemoryRepository _repository;
         // GET: api/<ItemsController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<CatalogItemDto>>> GetAllAsync()
             => Ok ((await repository.GetAllAsync()).Select(item => item.AsDto()));
         
         // GET /items/{id}
         [HttpGet("{id:guid}", Name = nameof(GetByIdAsync))]
-        public async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<CatalogItemDto>> GetByIdAsync(Guid id)
         {
             var item = await repository.GetAsync(id);
             return item is null
@@ -29,12 +32,13 @@ namespace Catalog.Service.Controllers
         
         // POST /items
         [HttpPost]
-        public async Task<ActionResult<ItemDto>> CreateAsync(CreateItemDto dto)
+        public async Task<ActionResult<CatalogItemDto>> CreateAsync(CreateItemDto dto)
         {
             if (dto.Price <= 0)
                 return BadRequest(new { Error = "Price must be greater than zero." });
             
-            var item = new Item
+            var item = new CatalogItem
+
             {
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
@@ -45,7 +49,7 @@ namespace Catalog.Service.Controllers
             await repository.CreateAsync(item);
 
             return CreatedAtRoute(nameof(GetByIdAsync),
-                new { id = item.Id },
+                new { id = item .Id },
                 item.AsDto());
         }
         
@@ -58,7 +62,7 @@ namespace Catalog.Service.Controllers
             
             var existing = await repository.GetAsync(id);
             if (existing is null) return NotFound();
-            var updated = new Item
+            var updated = new CatalogItem
             {
                 Id = id,
                 Name = dto.Name,

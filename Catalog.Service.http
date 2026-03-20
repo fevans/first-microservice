@@ -8,7 +8,7 @@ GET {{hostAddress}}/items
 GET {{hostAddress}}/items/{{itemId}}
 
 ### Get item by id
-@itemId2 = b076bd27-ce37-4c55-b839-57aa6266b2d1
+@itemId2 = 736abb49-d8f5-4169-9ecc-e49c320ed279
 GET {{hostAddress}}/items/{{itemId2}}
 
 ### Create item
